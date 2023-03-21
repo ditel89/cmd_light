@@ -1,6 +1,8 @@
 # This is a sample Python script.
 import serial
+import sys
 
+import paho.mqtt.client as mqtt
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
@@ -34,8 +36,17 @@ def read(ss, timeout=1):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print('test cmd light')
+    if len(sys.argv) < 2:
+        print("start for default settings")
+        print("usage : python main.py <host_url> <mqtt_port> <topic>")
+        print("        host_url = localhost, mqtt_port = 1883, topic = cmd/Light")
+    else:
+        host_url = sys.argv[1]
+        mqtt_port = sys.argv[2]
+        topic = sys.argv[3]
 
     ser = open_serial('/dev/ttyUSB0')
+    # ser = open_serial('/dev/ttyUSB0')
 
     status = '$LICMD,1,1*4F\r\n'
     turnOff = '$LICMD,3,1*4D\r\n'
