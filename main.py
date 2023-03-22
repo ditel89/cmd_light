@@ -40,8 +40,6 @@ def read(ss, timeout=1):
 def connect_serial_device(cmd):
     ser = open_serial('/dev/ttyUSB0')
 
-    print('send command to Light')
-
     ser.write(cmd.encode())
 
     result = read(ser)
@@ -87,13 +85,17 @@ if __name__ == '__main__':
         elif rx_message == '1':
             published_message(connect_serial_device(status), topic)
         elif rx_message == '2':
-            published_message(connect_serial_device(turn_on), topic)
+            connect_serial_device(turn_on)
+            published_message('Turn On the Light', topic)
         elif rx_message == '3':
-            published_message(connect_serial_device(turn_off), topic)
+            connect_serial_device(turn_off)
+            published_message('Turn Off the Light', topic)
         elif rx_message == '4':
-            published_message(connect_serial_device(light_reset), topic)
+            connect_serial_device(light_reset)
+            published_message('Reset the Light', topic)
         elif rx_message == '5':
-            published_message(connect_serial_device(floating_light), topic)
+            connect_serial_device(floating_light)
+            published_message('Floating Light Mode', topic)
 
 
     subscriber = mqtt.Subscriber(on_message)
