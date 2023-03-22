@@ -2,15 +2,19 @@
 import serial
 import sys
 
-import paho.mqtt.client as mqtt
+import mqtt
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+status = '$LICMD,1,1*4F\r\n'
+turn_on = '$LICMD,2,1*4C\r\n'
+turn_off = '$LICMD,3,1*4D\r\n'
+light_reset = '$LICMD,4,1*4A\r\n'
+floating_light = '$LICMD,5,1*4B\r\n'
 
-def open_serial(port, baudrate=9600, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
+
+def open_serial(device, baudrate=9600, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                 timeout=None, xonxoff=False, rtscts=False, dsrdtr=False):
     ss = serial.Serial()
-    ss.port = port
+    ss.port = device
     ss.baudrate = baudrate
     ss.bytesize = bytesize
     ss.parity = parity
@@ -33,56 +37,66 @@ def read(ss, timeout=1):
     return rx
 
 
+def connect_serial_device(cmd):
+    ser = open_serial('/dev/ttyUSB0')
+
+    print('send command to Light')
+
+    ser.write(cmd.encode())
+
+    result = read(ser)
+    parsing = result.split(',')
+    if cmd == status:
+        result = "V : " + parsing[1] + ', A : ' + parsing[2] + ', CDS : ' + parsing[3] + ', ON/OFF : ' + parsing[4] + \
+                  ', Character : ' + parsing[5] + ', Latitude : ' + parsing[8] + ', Longitude : ' + parsing[9][:4]
+    # print(result2)
+    # print('result : ', result)
+    return result
+
+
+def published_message(msg, topic_pub):
+    publisher = mqtt.Publisher()
+    publisher.start(host_url, port)
+    publisher.publish(topic_pub, msg)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print('test cmd light')
     if len(sys.argv) < 2:
-        print("start for default settings")
+        host_url = "localhost"
+        port = 1883
+        topic = "cmd/Light"
+        print("start for default option")
         print("usage : python main.py <host_url> <mqtt_port> <topic>")
         print("        host_url = localhost, mqtt_port = 1883, topic = cmd/Light")
     else:
         host_url = sys.argv[1]
-        mqtt_port = sys.argv[2]
+        port = sys.argv[2]
         topic = sys.argv[3]
 
-    ser = open_serial('/dev/ttyUSB0')
-    # ser = open_serial('/dev/ttyUSB0')
 
-    status = '$LICMD,1,1*4F\r\n'
-    turnOff = '$LICMD,3,1*4D\r\n'
-    turnOn = '$LICMD,2,1*4C\r\n'
-    lightReset = '$LICMD,4,1*4A\r\n'
-    floatingLight = '$LICMD,5,1*4B\r\n'
+    def on_message(client, userdata, msg):
 
-    string = status
-    # write_port(ser, string.encode())
-    # print(string)
-    while True:
-        print('insert cmd :')
-        op = input()
-        if op == '1':
-            string = status
-            print('Show Status')
-        elif op == '2':
-            string = turnOn
-            print('Turn On')
-        elif op == '3':
-            string = turnOff
-            print('Turn Off')
-        elif op == '4':
-            string = lightReset
-            print('Reset')
-        elif op == '5':
-            string = floatingLight
-            print('Floating Light')
-        elif op == 'q':
-            print('break')
-            break
+        rx_message = str(msg.payload.decode("utf-8"))
+        print(rx_message)
 
-        ser.write(string.encode())
-        # print(op.encode())
+        if rx_message == 'q':
+            print('stop subscriber')
+            subscriber.stop()
+        elif rx_message == '1':
+            published_message(connect_serial_device(status), topic)
+        elif rx_message == '2':
+            published_message(connect_serial_device(turn_on), topic)
+        elif rx_message == '3':
+            published_message(connect_serial_device(turn_off), topic)
+        elif rx_message == '4':
+            published_message(connect_serial_device(light_reset), topic)
+        elif rx_message == '5':
+            published_message(connect_serial_device(floating_light), topic)
 
-        result = read(ser)
-        print('result : ', result)
+
+    subscriber = mqtt.Subscriber(on_message)
+    subscriber.start(host_url, port, topic)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
