@@ -43,10 +43,13 @@ def connect_serial_device(cmd):
     ser.write(cmd.encode())
 
     result = read(ser)
-    parsing = result.split(',')
-    if cmd == status:
-        result = "V : " + parsing[1] + ', A : ' + parsing[2] + ', CDS : ' + parsing[3] + ', ON/OFF : ' + parsing[4] + \
-                  ', Character : ' + parsing[5] + ', Latitude : ' + parsing[8] + ', Longitude : ' + parsing[9][:4]
+    if len(result) == 0:
+        result = 'error, try again'
+    else:
+        parsing = result.split(',')
+        if cmd == status:
+            result = "V : " + parsing[1] + ', A : ' + parsing[2] + ', CDS : ' + parsing[3] + ', ON/OFF : ' + parsing[4] + \
+            ', Character : ' + parsing[5] + ', Latitude : ' + parsing[8] + ', Longitude : ' + parsing[9][:4]
     # print(result2)
     # print('result : ', result)
     return result
