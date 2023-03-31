@@ -75,14 +75,16 @@ if __name__ == '__main__':
         host_url = sys.argv[1]
         port = sys.argv[2]
         topic = sys.argv[3]
+        print("host_url = " + sys.argv[1]+ ", mqtt_port = " + sys.argv[2] + ", topic = " + sys.argv[3], flush=True)
 
     ser = open_serial('/dev/ttyUSB0')
+    # ser = open_serial('/dev/ttyTHS0')
 
 
     def on_message(client, userdata, msg):
 
         rx_message = str(msg.payload.decode("utf-8"))
-        print(rx_message)
+        print(rx_message, flush=True)
 
         if rx_message == 'q':
             print('stop subscriber')
