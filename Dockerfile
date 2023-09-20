@@ -11,4 +11,4 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 COPY ./cmd_light /app
-CMD python main.py ${URL} ${PORT} ${TOPIC} ${DEVICE}
+CMD python main.py ${URL} ${PORT} ${TOPIC_CMD} ${TOPIC_STATUS} ${INTERVAL} ${DEVICE}

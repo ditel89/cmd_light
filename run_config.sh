@@ -4,7 +4,8 @@ docker pull ditel89/light-control:v1.1
 sleep 1
 
 echo "setting config.cfg"
-echo -e "URL=ketibnt.iptime.org\nPORT=3883\nTOPIC=cmdlight\nDEVICE=/dev/ttyTHS0" > config.cfg
+echo -e "URL=ketibnt.iptime.org\nPORT=3883\nTOPIC_CMD=light/cmd\nTOPIC_STATUS=light/status" > config.cfg
+echo -e "INTERVAL=3\nDEVICE=/dev/ttyTHS0" >> config.cfg
 
 sleep 2
 
