@@ -1,7 +1,9 @@
 # This is a sample Python script.
+import time
+
 import serial
 import sys
-
+import threading
 import mqtt
 
 status = '$LICMD,1,1*4F\r\n'
@@ -43,9 +45,9 @@ def connect_serial_device(cmd):
             result = 'error, try again'
         else:
             parsing = result.split(',')
-            result = "V : " + parsing[1] + ', A : ' + parsing[2] + ', CDS : ' + parsing[3] + ', ON/OFF : ' + parsing[
-                4] + \
-                     ', Character : ' + parsing[5] + ', Latitude : ' + parsing[8] + ', Longitude : ' + parsing[9][:4]
+            result = ("V : " + parsing[1] + ', A : ' + parsing[2] + ', CDS : ' + parsing[3] +
+                      ', ON/OFF : ' + parsing[4] + ', Character : ' + parsing[5] +
+                      ', Latitude : ' + parsing[8] + ', Longitude : ' + parsing[9][:4])
     # print(result2)
     # print('result : ', result)
     return result
@@ -57,6 +59,42 @@ def published_message(msg, topic_pub):
     publisher.publish(topic_pub, msg)
 
 
+def pub_status_schedule(topic, cnt):
+    while True:
+        msg = connect_serial_device(status)
+        published_message(msg, topic)
+        time.sleep(cnt)
+
+
+def subscribe_message():
+    subscriber = mqtt.Subscriber(on_message)
+    subscriber.start(host_url, port, topic_cmd)
+
+
+def on_message(client, userdata, msg):
+    rx_message = str(msg.payload.decode("utf-8"))
+    # print(rx_message, flush=True)
+
+    if rx_message == 'q':
+        print('--------exit--------')
+        published_message('exit', topic_cmd)
+        sys.exit()
+    elif rx_message == '1':
+        published_message(connect_serial_device(status), topic_cmd)
+    elif rx_message == '2':
+        connect_serial_device(turn_on)
+        published_message('Turn On the Light', topic_cmd)
+    elif rx_message == '3':
+        connect_serial_device(turn_off)
+        published_message('Turn Off the Light', topic_cmd)
+    elif rx_message == '4':
+        connect_serial_device(light_reset)
+        published_message('Reset the Light', topic_cmd)
+    elif rx_message == '5':
+        connect_serial_device(floating_light)
+        published_message('Floating Light Mode', topic_cmd)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print('test cmd light')
@@ -66,46 +104,33 @@ if __name__ == '__main__':
         # topic = "cmd/Light"
         host_url = 'ketibnt.iptime.org'
         port = 3883
-        topic = 'cmdlight'
+        topic_cmd = 'light/cmd'
+        topic_status = 'light/status'
+        interval = 3
+        device = '/dev/ttyUSB0'
 
         print("start for default option")
         print("usage : python main.py <host_url> <mqtt_port> <topic>")
-        print("        host_url = localhost, mqtt_port = 1883, topic = cmd/Light")
+        print("        host_url = localhost, mqtt_port = 1883, topic = cmd/Light, interval = 3sec")
     else:
         host_url = sys.argv[1]
         port = sys.argv[2]
-        topic = sys.argv[3]
-        print("host_url = " + sys.argv[1]+ ", mqtt_port = " + sys.argv[2] + ", topic = " + sys.argv[3], flush=True)
+        topic_cmd = sys.argv[3]
+        topic_status = sys.argv[4]
+        interval = sys.argv[5]
+        device = sys.argv[6]
+        print("host_url = " + sys.argv[1] + ", mqtt_port = " + sys.argv[2] +
+              ", topic_cmd = " + sys.argv[3] + ", topic_status = " + sys.argv[4] +
+              ", interval = " + sys.argv[5] + "sec" + " device = " + sys.argv[6], flush=True)
 
-    ser = open_serial('/dev/ttyUSB0')
+    ser = open_serial(device)
     # ser = open_serial('/dev/ttyTHS0')
 
+    thread_1 = threading.Thread(target=subscribe_message)
+    thread_1.start()
 
-    def on_message(client, userdata, msg):
-
-        rx_message = str(msg.payload.decode("utf-8"))
-        print(rx_message, flush=True)
-
-        if rx_message == 'q':
-            print('stop subscriber')
-            subscriber.stop()
-        elif rx_message == '1':
-            published_message(connect_serial_device(status), topic)
-        elif rx_message == '2':
-            connect_serial_device(turn_on)
-            published_message('Turn On the Light', topic)
-        elif rx_message == '3':
-            connect_serial_device(turn_off)
-            published_message('Turn Off the Light', topic)
-        elif rx_message == '4':
-            connect_serial_device(light_reset)
-            published_message('Reset the Light', topic)
-        elif rx_message == '5':
-            connect_serial_device(floating_light)
-            published_message('Floating Light Mode', topic)
-
-
-    subscriber = mqtt.Subscriber(on_message)
-    subscriber.start(host_url, port, topic)
+    thread_2 = threading.Thread(target=pub_status_schedule, args=(topic_status, interval))
+    thread_2.daemon = True
+    thread_2.start()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
