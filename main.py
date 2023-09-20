@@ -98,7 +98,7 @@ def on_message(client, userdata, msg):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print('test cmd light')
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 1:
         # host_url = "localhost"
         # port = 1883
         # topic = "cmd/Light"
@@ -114,10 +114,10 @@ if __name__ == '__main__':
         print("        host_url = localhost, mqtt_port = 1883, topic = cmd/Light, interval = 3sec")
     else:
         host_url = sys.argv[1]
-        port = sys.argv[2]
+        port = int(sys.argv[2])
         topic_cmd = sys.argv[3]
         topic_status = sys.argv[4]
-        interval = sys.argv[5]
+        interval = int(sys.argv[5])
         device = sys.argv[6]
         print("host_url = " + sys.argv[1] + ", mqtt_port = " + sys.argv[2] +
               ", topic_cmd = " + sys.argv[3] + ", topic_status = " + sys.argv[4] +
