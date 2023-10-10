@@ -1,5 +1,5 @@
 echo "Down load docker image"
-docker pull ditel89/light-control:v1.1
+docker pull ditel89/light-control:v1.2
 
 sleep 1
 
@@ -10,7 +10,7 @@ echo -e "INTERVAL=3\nDEVICE=/dev/ttyTHS0" >> config.cfg
 sleep 2
 
 echo "setting docker run script"
-echo "docker run -it --name light-control --rm --device=/dev/ttyTHS0 --env-file config.cfg ditel89/light-control:v1.1" > run_cmdLigth.sh
+echo "docker run -it --name light-control --rm --device=/dev/ttyTHS0 --env-file config.cfg ditel89/light-control:v1.2" > run_cmdLigth.sh
 
 chmod +x run_cmdLigth.sh
 

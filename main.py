@@ -40,10 +40,10 @@ def connect_serial_device(cmd):
     # ser = open_serial('/dev/ttyUSB0')
     ser.write(cmd.encode())
     result = read(ser)
-    if cmd == status:
-        if len(result) == 0:
-            result = 'error, try again'
-        else:
+    if len(result) <= 0:
+        result = 'error, try again'
+    else:
+        if cmd == status:
             parsing = result.split(',')
             result = ("V : " + parsing[1] + ', A : ' + parsing[2] + ', CDS : ' + parsing[3] +
                       ', ON/OFF : ' + parsing[4] + ', Character : ' + parsing[5] +
@@ -73,7 +73,7 @@ def subscribe_message():
 
 def on_message(client, userdata, msg):
     rx_message = str(msg.payload.decode("utf-8"))
-    # print(rx_message, flush=True)
+    print(rx_message, flush=True)
 
     if rx_message == 'q':
         print('--------exit--------')
@@ -98,7 +98,7 @@ def on_message(client, userdata, msg):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print('test cmd light')
-    if len(sys.argv) < 1:
+    if len(sys.argv) <= 1:
         # host_url = "localhost"
         # port = 1883
         # topic = "cmd/Light"
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
         print("start for default option")
         print("usage : python main.py <host_url> <mqtt_port> <topic>")
-        print("        host_url = localhost, mqtt_port = 1883, topic = cmd/Light, interval = 3sec")
+        print("        host_url = localhost, mqtt_port = 1883, topic = light/status, interval = 3")
     else:
         host_url = sys.argv[1]
         port = int(sys.argv[2])
