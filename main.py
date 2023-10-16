@@ -1,4 +1,5 @@
 # This is a sample Python script.
+import json
 import time
 
 import serial
@@ -45,9 +46,22 @@ def connect_serial_device(cmd):
     else:
         if cmd == status:
             parsing = result.split(',')
-            result = ("V : " + parsing[1] + ', A : ' + parsing[2] + ', CDS : ' + parsing[3] +
-                      ', ON/OFF : ' + parsing[4] + ', Character : ' + parsing[5] +
-                      ', Latitude : ' + parsing[8] + ', Longitude : ' + parsing[9][:4])
+            if dataFrom == 'json':
+                result = json.dumps(
+                    {
+                        "v": parsing[1],
+                        "A": parsing[2],
+                        "CSD": parsing[3],
+                        "ON/OFF": parsing[4],
+                        "Character": parsing[5],
+                        "Latitude": parsing[8],
+                        "Longitude": parsing[9][:4]
+                    }, indent=4
+                )
+            else:
+                result = ("V : " + parsing[1] + ', A : ' + parsing[2] + ', CDS : ' + parsing[3] +
+                          ', ON/OFF : ' + parsing[4] + ', Character : ' + parsing[5] +
+                          ', Latitude : ' + parsing[8] + ', Longitude : ' + parsing[9][:4])
     # print(result2)
     # print('result : ', result)
     return result
@@ -124,6 +138,8 @@ if __name__ == '__main__':
               ", interval = " + sys.argv[5] + "sec" + " device = " + sys.argv[6], flush=True)
 
     ser = open_serial(device)
+
+    dataFrom = 'json'
     # ser = open_serial('/dev/ttyTHS0')
 
     thread_1 = threading.Thread(target=subscribe_message)
