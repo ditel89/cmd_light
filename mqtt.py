@@ -8,6 +8,7 @@ class Subscriber:
 
     def set_client(self, on_message):
         self.mqttc = mqtt.Client()
+        #self.mqttc.username_pw_set(username="keti", password="keti1234")
         self.mqttc.on_connect = self.connect
         self.mqttc.on_disconnect = self.disconnect
         self.mqttc.on_subscribe = self.subscribe
@@ -41,6 +42,7 @@ class Publisher:
 
     def set_client(self):
         self.mqttc = mqtt.Client()
+        #self.mqttc.username_pw_set(username="keti", password="keti1234")
         self.mqttc.on_connect = self.connect
         self.mqttc.on_disconnect = self.disconnect
         self.mqttc.on_publish = self.publish

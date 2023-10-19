@@ -46,7 +46,7 @@ def connect_serial_device(cmd):
     else:
         if cmd == status:
             parsing = result.split(',')
-            if dataFrom == 'json':
+            if dataForm == 'json':
                 result = json.dumps(
                     {
                         "v": parsing[1],
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     ser = open_serial(device)
 
-    dataFrom = 'json'
+    dataForm = 'json'
     # ser = open_serial('/dev/ttyTHS0')
 
     thread_1 = threading.Thread(target=subscribe_message)
