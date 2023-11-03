@@ -116,16 +116,20 @@ if __name__ == '__main__':
         # host_url = "localhost"
         # port = 1883
         # topic = "cmd/Light"
-        host_url = 'ketibnt.iptime.org'
-        port = 3883
+        # host_url = 'ketibnt.iptime.org'
+        host_url = "10.128.0.10"
+        port = 1883
         topic_cmd = 'light/cmd'
         topic_status = 'light/status'
-        interval = 3
-        device = '/dev/ttyUSB0'
+        interval = 5
+        device = '/dev/ttyTHS0'
 
         print("start for default option")
         print("usage : python main.py <host_url> <mqtt_port> <topic>")
-        print("        host_url = localhost, mqtt_port = 1883, topic = light/status, interval = 3")
+        #print("        host_url = localhost, mqtt_port = 1883, topic = light/status, interval = 3")
+        print("host_url = " + host_url + ", mqtt_port = " + port +
+              ", topic_cmd = " + topic_cmd + ", topic_status = " + topic_status +
+              ", interval = " + interval + "sec" + " device = " + device, flush=True)
     else:
         host_url = sys.argv[1]
         port = int(sys.argv[2])
