@@ -46,16 +46,20 @@ def connect_serial_device(cmd):
     else:
         if cmd == status:
             parsing = result.split(',')
+            del parsing[6:8]
+            parsing[7] = parsing[7][:4]
+            parsing = list(map(float, parsing[1:]))
             if dataForm == 'json':
                 result = json.dumps(
                     {
-                        "v": parsing[1],
-                        "A": parsing[2],
-                        "CSD": parsing[3],
-                        "ON/OFF": parsing[4],
-                        "Character": parsing[5],
-                        "Latitude": parsing[8],
-                        "Longitude": parsing[9][:4]
+                        "v": parsing[0],
+                        "A": parsing[1],
+                        "CSD": int(parsing[2]),
+                        "ON/OFF": int(parsing[3]),
+                        "Character": int(parsing[4]),
+                        "Latitude": parsing[5],
+                        "Longitude": parsing[6]
+                        #"date": time.strftime('%Y-%m-%d %H:%M:%S')
                     }, indent=4
                 )
             else:
@@ -123,13 +127,14 @@ if __name__ == '__main__':
         topic_status = 'light/status'
         interval = 5
         device = '/dev/ttyTHS0'
+        #device = '/dev/ttyUSB0'
 
         print("start for default option")
         print("usage : python main.py <host_url> <mqtt_port> <topic>")
         #print("        host_url = localhost, mqtt_port = 1883, topic = light/status, interval = 3")
-        print("host_url = " + host_url + ", mqtt_port = " + port +
+        print("host_url = " + host_url + ", mqtt_port = " + str(port) +
               ", topic_cmd = " + topic_cmd + ", topic_status = " + topic_status +
-              ", interval = " + interval + "sec" + " device = " + device, flush=True)
+              ", interval = " + str(interval) + "sec" + " device = " + device, flush=True)
     else:
         host_url = sys.argv[1]
         port = int(sys.argv[2])
