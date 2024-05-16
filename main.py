@@ -120,14 +120,15 @@ if __name__ == '__main__':
         # host_url = "localhost"
         # port = 1883
         # topic = "cmd/Light"
-        # host_url = 'ketibnt.iptime.org'
-        host_url = "10.128.0.10"
-        port = 1883
+        host_url = 'ketibnt.iptime.org'
+        port = 3883
+        # host_url = "10.128.0.10"
+        # port = 1883
         topic_cmd = 'light/cmd'
         topic_status = 'light/status'
         interval = 5
-        device = '/dev/ttyTHS0'
-        #device = '/dev/ttyUSB0'
+        # device = '/dev/ttyTHS0'
+        device = '/dev/ttyUSB0'
 
         print("start for default option")
         print("usage : python main.py <host_url> <mqtt_port> <topic>")
@@ -151,11 +152,10 @@ if __name__ == '__main__':
     dataForm = 'json'
     # ser = open_serial('/dev/ttyTHS0')
 
-    thread_1 = threading.Thread(target=subscribe_message)
+    thread_1 = threading.Thread(target=subscribe_message, daemon=True)
     thread_1.start()
 
-    thread_2 = threading.Thread(target=pub_status_schedule, args=(topic_status, interval))
-    thread_2.daemon = True
+    thread_2 = threading.Thread(target=pub_status_schedule, args=(topic_status, interval), daemon=False)
     thread_2.start()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
